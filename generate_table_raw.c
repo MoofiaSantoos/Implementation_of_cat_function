@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// Генерируем таблицу АСКИ
 int main() {
     for (int i = 0; i != 256; i++) {
         if(i != 0 && !(i % 10))

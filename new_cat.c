@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <stdbool.h>
+#include "new_cat.h"
 
 typedef struct {
     bool NumberNonBlank;
@@ -8,7 +9,7 @@ typedef struct {
     bool NumberAll;
     bool SqueezeBlank;
     bool Tab;
-    bool PrintHidden;
+    // bool PrintHidden;
 } Flags;
 
 Flags CatReadFlags(int argc, char *argv[]) {
@@ -19,7 +20,7 @@ Flags CatReadFlags(int argc, char *argv[]) {
         {NULL, 0, NULL, 0}
     };
     int CurrentFlag = getopt_long(argc, argv, "bevEnstT", LongOptions, NULL);
-    Flags flags = {false, false, false, false, false, false};
+    Flags flags = {false, false, false, false, false};
     for (;CurrentFlag != -1; 
         CurrentFlag = getopt_long(argc, argv, "bevEnstT", LongOptions, NULL)) {
         switch (CurrentFlag) {
@@ -27,16 +28,16 @@ Flags CatReadFlags(int argc, char *argv[]) {
             flags.NumberNonBlank = true;
             break; case 'e':
             flags.MarkEndList = true;
-            case 'v':
-            flags.PrintHidden = true;
+            // case 'v':
+            // flags.PrintHidden = true;
             break; case 'E':
             flags.MarkEndList = true;
             break; case 'n':
             flags.NumberAll = true;
             break; case 's':
             flags.SqueezeBlank = true;
-            break; case 't':
-            flags.PrintHidden = true;
+            // break; case 't':
+            // flags.PrintHidden = true;
             case 'T':
             flags.Tab = true;
         }
@@ -44,19 +45,31 @@ Flags CatReadFlags(int argc, char *argv[]) {
     return flags;
 }
 
+void CatFile(FILE *file, Flags flags, const char *table[static 256]){
+    int c = 0; //Хранит в себе текущие циклы которые мы записали
+    int last; //Переменная для использования с конкретными аргументами (?)
+    (void)last;
+    (void)flags;
+    while (fread(&c, 1, 1, file) > 0) {
+        printf("%s", table[c]);
+    }
+}
+
 int main(int argc, char *argv[]) {
-    (void) argc, (void)argv;
     Flags flags = CatReadFlags(argc, argv);
+    const char *table[256];
     if (flags.NumberNonBlank)
-    printf ("number non-blank lines\n");
+        printf ("number non-blank lines\n");
     if (flags.MarkEndList)
-    printf("mark end of lines\n");
+        CatSetMarkEndList(table);
     if(flags.NumberAll)
-    printf("number all\n");
+        printf("number all\n");
     if (flags.SqueezeBlank)
-    printf("squeeze\n");
+        printf("squeeze\n");
     if(flags.Tab)
-    printf("tab\n");
-    if(flags.PrintHidden)
-    printf("print non-printable\n");
+        CatSetTab(table);
+    // if(flags.PrintHidden)
+    //     //printf("print non-print\n");
+    //     CatPrintHidden(table);
+    CatFile(stdin, flags, table);
 }

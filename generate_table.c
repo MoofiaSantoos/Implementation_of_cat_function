@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// Генерируем таблицу АСКИ
 int main() {
     for (int i = 0; i != 256; i++) {
         if(i != 0 && !(i % 10))
@@ -26,9 +27,12 @@ int main() {
             printf("\\");
             default:
             if (i < 32)
-                printf("\0%o", i);
+                printf("\\0%o", i);
             else if (i >'~')
-                printf("\x%c", i);
+                printf("\\x%x", i);
+            else
+                printf("%c", i);
         }
+        printf("\",");
     }
 }
