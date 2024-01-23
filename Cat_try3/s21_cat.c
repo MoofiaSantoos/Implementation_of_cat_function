@@ -1,13 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "s21_cat.h"
-#include <getopt.h>
 
 
 
-int main(int argc, char *argv) {
-    void cat_programm(int argc, char *argv);
+int main(int argc, char **argv) {
+    cat_programm(argc, argv[1]);
 }
 
 
@@ -15,10 +11,13 @@ int main(int argc, char *argv) {
 void cat_programm(int argc, char *argv) {
     int ch;
     FILE *file = fopen(argv, "r");
-    while ((ch = fgetc(file)) != EOF) {
-        for (int i = 1; i < argc; i++) {
+    if (file == NULL) {
+        perror("ERROR");
+    }
+    else {
+        while ((ch = fgetc(file)) != EOF) {
             putchar(ch);
-        }
     }
     fclose(file);
+    }
 }
