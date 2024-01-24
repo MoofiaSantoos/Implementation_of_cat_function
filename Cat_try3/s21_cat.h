@@ -16,5 +16,8 @@ typedef struct {
 } flags;
 
 void cat_programm (int argc, char *argv);
+void cat_b(char *buffer, int buffLength, FILE *fptr);
+
+
 
 #endif

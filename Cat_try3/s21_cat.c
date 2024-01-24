@@ -21,3 +21,12 @@ void cat_programm(int argc, char *argv) {
     fclose(file);
     }
 }
+
+void cat_b(char *buffer, int buffLength, FILE *file) {
+  int counter = 1;
+  while (fgets(buffer, buffLength, file)) {
+    if (buffer[0] != '\n') {
+        printf("%6d%s", counter++, buffer);
+    }
+  }
+}
