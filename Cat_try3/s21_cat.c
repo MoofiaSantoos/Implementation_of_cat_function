@@ -29,7 +29,7 @@ flags CatReadFlags(int argc, char *argv[])
             flags.v = 1;
             break;
         case 'E':
-            flags.e = 1;
+            flags.E = 1;
             break;
         case 'n':
             flags.n = 1;
@@ -39,10 +39,9 @@ flags CatReadFlags(int argc, char *argv[])
             break;
         case 't':
             flags.t = 1;
-            flags.v = 1;
             break;
         case 'T':
-            flags.t = 1;
+            flags.T = 1;
             break;
         }
         currentFlag = getopt_long(argc, argv, "bevEnstT", LongOptions, NULL);
@@ -57,27 +56,39 @@ void cat_programm(int argc, char *argv, flags flags)
     FILE *file = fopen(argv, "r");
     if (file == NULL)
     {
-        perror("ERROR");
+      perror("ERROR");
     }
     else if (flags.b)
     {
-        cat_b(buffer, SIZE, file);
+      cat_b(buffer, SIZE, file);
     }
     else if (flags.n)
     {
-        cat_n(buffer, SIZE, file);
+      cat_n(buffer, SIZE, file);
     }
     else if (flags.s)
     {
-        cat_s(buffer, SIZE, file);
+      cat_s(buffer, SIZE, file);
+    }
+    else if (flags.v)
+    {
+      cat_v(file);
     }
     else if (flags.e)
     {
-        cat_e(file, flags.v);
+      cat_e(file);
     }
     else if (flags.t)
     {
-        cat_t(file, flags.v);
+      cat_t(file);
+    }
+    else if (flags.T)
+    {
+      cat_T(file);
+    }
+    else if (flags.E)
+    {
+      cat_E(file);
     }
     else
     {
@@ -133,46 +144,91 @@ void cat_s(char *buffer, int size, FILE *file)
     }
 }
 
-
-int transform(int ch) {
-  if (ch == '\n' || ch == '\t')
-    return ch;  // return is allowed in the pre-check
-  if ((ch >= 0 && ch < 9) || (ch > 10 && ch < 32) || (ch > 126 && ch <= 160)) {
-    printf("^");
-    if (ch > 126) {
-      ch -= 64;
-    } else {
-      ch += 64;
+void cat_v(FILE *file) {
+  int c;
+  while ((c = getc(file)) != EOF) {
+    if ((c < 32 && c != '\n' && c != '\t') || c == 127) printf("^");
+    if (c > 127 && c < 160) printf("M-^");
+    if (c > 159 && c < 255) {
+      printf("M-");
+      c = c + 128;
+    } else if ((c < 32 || (c > 126 && c < 255)) && c != '\n' && c != '\t') {
+      if (c > 126 && c < 160)
+        c = c - 64;
+      else if (c < 126)
+        c = c + 64;
+      if (c >= 160 && c < 255) c = c + 128;
     }
+    if (c == 255)
+      printf("M-^?");
+    else
+      putc(c, stdout);
   }
-  return ch;
 }
 
-void cat_e(FILE *file, int v) {
-    int ch;
-    while ((ch = fgetc(file)) != EOF) {
-        // Если считанный символ - символ новой строки, выводим "$"
-        if (ch == '\n') {
-            putchar('$');
-        }
-    if (v == 1) {
-        ch = transform(ch);
+void cat_e(FILE *file) {
+  int c;
+  while ((c = getc(file)) != EOF) {
+    if (c == 10) printf("$");
+    if ((c < 32 && c != '\n' && c != '\t') || c == 127) printf("^");
+    if (c > 127 && c < 160) printf("M-^");
+    if (c > 159 && c < 255) {
+      printf("M-");
+      c = c + 128;
+    } else if ((c < 32 || (c > 126 && c < 255)) && c != '\n' && c != '\t') {
+      if (c > 126 && c < 160)
+        c = c - 64;
+      else if (c < 126)
+        c = c + 64;
+      if (c >= 160 && c < 255) c = c + 128;
     }
-    printf("%c", ch);
-    }
+
+    if (c == 255)
+      printf("M-^?");
+    else
+      putc(c, stdout);
+  }
 }
 
-void cat_t(FILE *file, int v) {
-    int ch;
-    while ((ch = fgetc(file)) != EOF) {
-        // Если считанный символ - символ новой строки, выводим "$"
-        if (ch == '\t') {
-            printf("^");
-            ch = '|';
-        }
-    if (v == 1) {
-        ch = transform(ch);
+void cat_E(FILE *file) {
+  int c;
+  while ((c = getc(file)) != EOF) {
+    if (c == '\n') {
+      printf("$");
     }
-    printf("%c", ch);
+    putc(c, stdout);
+  }
+}
+
+void cat_t(FILE *file) {
+  int c;
+  while ((c = getc(file)) != EOF) {
+    if (c == 10) printf("$");
+    if ((c < 32 && c != '\n' && c != '\t') || c == 127) printf("^");
+    if (c > 127 && c < 160) printf("M-^");
+    if (c > 159 && c < 255) {
+      printf("M-");
+      c = c + 128;
+    } else if ((c < 32 || (c > 126 && c < 255)) && c != '\n' && c != '\t') {
+      if (c > 126 && c < 160)
+        c = c - 64;
+      else if (c < 126)
+        c = c + 64;
+      if (c >= 160 && c < 255) c = c + 128;
     }
+    if (c == 255)
+      printf("M-^?");
+    else
+      putc(c, stdout);
+  }
+}
+
+void cat_T(FILE *file) {
+  int c;
+  while ((c = getc(file)) != EOF) {
+    if (c != '\t')
+      putc(c, stdout);
+    else
+      printf("^I");
+  }
 }
