@@ -3,7 +3,7 @@
 int main(int argc, char **argv)
 {
     flags flags = CatReadFlags(argc, argv);
-    cat_programm(argc, argv[optind], flags);
+    cat_programm(argv[optind], flags);
 }
 
 flags CatReadFlags(int argc, char *argv[])
@@ -50,7 +50,7 @@ flags CatReadFlags(int argc, char *argv[])
     return flags;
 }
 
-void cat_programm(int argc, char *argv, flags flags)
+void cat_programm(char *argv, flags flags)
 {
     int ch;
     char buffer[SIZE];
